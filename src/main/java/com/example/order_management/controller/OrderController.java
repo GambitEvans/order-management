@@ -3,10 +3,10 @@ package com.example.order_management.controller;
 import com.example.order_management.dto.OrderRequestDTO;
 import com.example.order_management.dto.OrderResponseDTO;
 import com.example.order_management.dto.UpdateOrderStatusDTO;
-import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
-import com.example.order_management.mapper.OrderMapper;
 import com.example.order_management.service.OrderService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Pedidos")
 @RestController
 @RequestMapping("/orders")
 public class OrderController extends AbstractController{
@@ -34,6 +35,7 @@ public class OrderController extends AbstractController{
         this.orderService = orderService;
     }
     
+    @Operation(summary = "Criar pedidos")
     @PostMapping
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Validated OrderRequestDTO dto) {
         return ok(orderService.createOrder(dto));
