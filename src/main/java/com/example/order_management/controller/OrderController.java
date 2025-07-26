@@ -1,14 +1,13 @@
 package com.example.order_management.controller;
 
-import com.example.order_management.dto.ItemDTO;
 import com.example.order_management.dto.OrderRequestDTO;
 import com.example.order_management.dto.OrderResponseDTO;
 import com.example.order_management.dto.UpdateOrderStatusDTO;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
+import com.example.order_management.mapper.OrderMapper;
 import com.example.order_management.service.OrderService;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +26,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/orders")
-public class OrderController {
+public class OrderController extends AbstractController{
     
     private final OrderService orderService;
     
@@ -37,8 +36,7 @@ public class OrderController {
     
     @PostMapping
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Validated OrderRequestDTO dto) {
-        var created = orderService.createOrder(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(toDTO(created));
+        return ok(orderService.createOrder(dto));
     }
     
     @GetMapping
@@ -47,8 +45,7 @@ public class OrderController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end
     ) {
-        var list = orderService.findByFilter(status, start, end);
-        return ResponseEntity.ok(list.stream().map(this::toDTO).toList());
+        return ok(orderService.findByFilter(status, start, end));
     }
     
     @PatchMapping("/{id}/status")
@@ -56,29 +53,13 @@ public class OrderController {
             @PathVariable UUID id,
             @RequestBody @Validated UpdateOrderStatusDTO dto
     ) {
-        var updated = orderService.updateStatus(id, dto.status());
-        return ResponseEntity.ok(toDTO(updated));
+        return ok(orderService.updateStatus(id, dto.status()));
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
         orderService.cancelOrder(id);
-        return ResponseEntity.noContent().build();
+        return noContent();
     }
     
-    private OrderResponseDTO toDTO(OrderEntity order) {
-        List<ItemDTO> items = order.getItems().stream()
-                .map(i -> new ItemDTO(i.getProduct(), i.getQuantity(), i.getUnitPrice()))
-                .toList();
-        
-        return new OrderResponseDTO(
-                order.getId(),
-                order.getPartner().getId(),
-                items,
-                order.getTotalValue(),
-                order.getStatus().name(),
-                order.getCreatedAt(),
-                order.getUpdatedAt()
-        );
-    }
 }
