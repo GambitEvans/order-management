@@ -11,7 +11,7 @@ public enum OrderStatusStrategyEnum {
     APROVADO(ApprovedStatusStrategy::new),
     PENDENTE(PendingStatusStrategy::new);
     
-    private Supplier<? extends OrderStatusStrategy> supplier;
+    private final Supplier<? extends OrderStatusStrategy> supplier;
     
     OrderStatusStrategyEnum(Supplier<? extends OrderStatusStrategy> supplier) {
         this.supplier = supplier;
