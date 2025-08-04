@@ -46,10 +46,15 @@ Permite cadastrar, consultar, atualizar status e cancelar pedidos, além de inte
 
 Após a aplicação estar rodando via Docker Compose, é possível executar um teste de carga básico com o **Apache JMeter**.
 
+### 🌐 SWAGGER
+1. A aplicação contém um swagger que documenta os endpoints existentes com exemplos dos dados que precisam ou não ser passados na requisição.
+2. Você consegue acessa o swagger na url: [Swagger](http://localhost:8080/swagger-ui/index.html)
+3. A aplicação tem uma arquivo data.sql na pasta resources onde você pode ver parceiros que já estão cadastrados ou pode cadastrar alguns para seus testes
+
 ### 📌 Passos para executar:
 
 1. Certifique-se de que a aplicação está acessível em:  
-   [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
+   [Health Check](http://localhost:8080/actuator/health)
 
 2. Execute o comando abaixo a partir da raiz do projeto se estiver usando windows:
     ```bash
