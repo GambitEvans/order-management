@@ -3,6 +3,8 @@ package com.example.order_management.service.strategy;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
+import com.example.order_management.exception.InvalidOrderStatusTransitionException;
+import com.example.order_management.exception.OrderAlreadyCancelledException;
 import com.example.order_management.service.strategy.impl.ApprovedStatusStrategy;
 import org.junit.jupiter.api.Test;
 
@@ -50,11 +52,11 @@ public class ApprovedStatusStrategyTest {
                 .status(OrderStatusEnum.APROVADO)
                 .build();
         
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        Exception exception = assertThrows(OrderAlreadyCancelledException.class, () ->
                 strategy.handleTransition(order, OrderStatusEnum.PENDENTE)
         );
         
-        assertEquals("Cannot revert approved order to pending.", exception.getMessage());
+        assertEquals("Pedido com o id " + order.getId() + " já está cancelado", exception.getMessage());
     }
     
     @Test
@@ -71,10 +73,10 @@ public class ApprovedStatusStrategyTest {
                 .status(OrderStatusEnum.APROVADO)
                 .build();
         
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+        Exception exception = assertThrows(InvalidOrderStatusTransitionException.class, () ->
                 strategy.handleTransition(order, OrderStatusEnum.ENVIADO)
         );
         
-        assertEquals("Invalid transition from APPROVED to ENVIADO", exception.getMessage());
+        assertEquals("Tramsição inválida do status " + order.getStatus() + " para " + OrderStatusEnum.ENVIADO, exception.getMessage());
     }
 }

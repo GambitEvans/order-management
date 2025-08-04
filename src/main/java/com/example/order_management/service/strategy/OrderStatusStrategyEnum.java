@@ -25,7 +25,7 @@ public enum OrderStatusStrategyEnum {
         try {
             return OrderStatusStrategyEnum.valueOf(status.name()).getInstance();
         } catch (IllegalArgumentException | NullPointerException e) {
-            throw new StrategyNotFoundException("No strategy found for status: " + status);
+            throw new StrategyNotFoundException("Não foi encontrada nenhuma estratégia para o status : " + status);
         }
     }
 }

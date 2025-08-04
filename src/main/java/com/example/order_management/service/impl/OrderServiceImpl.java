@@ -11,6 +11,11 @@ import com.example.order_management.entity.ItemEntity;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
+import com.example.order_management.exception.InsufficientCreditException;
+import com.example.order_management.exception.InvalidOrderStatusException;
+import com.example.order_management.exception.OrderAlreadyCancelledException;
+import com.example.order_management.exception.OrderNotFoundException;
+import com.example.order_management.exception.PartnerNotFoundException;
 import com.example.order_management.mapper.OrderMapper;
 import com.example.order_management.repository.OrderRepository;
 import com.example.order_management.repository.PartnerRepository;
@@ -56,13 +61,14 @@ public class OrderServiceImpl extends AbstractService<OrderEntity, OrderResponse
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO dto) {
-        PartnerEntity partner = partnerRepository.findById(dto.partnerId())
-                .orElseThrow(() -> new RuntimeException("Partner not found"));
+        UUID partnerId = dto.partnerId();
+        PartnerEntity partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new PartnerNotFoundException(partnerId));
         
         BigDecimal total = calculateTotal(dto.items());
         
         if (partner.getCreditAvailable().compareTo(total) < 0) {
-            throw new IllegalStateException("Insufficient credit for partner");
+            throw new InsufficientCreditException(partnerId);
         }
         
         OrderEntity order = buildOrderEntity(dto, partner, total);
@@ -75,7 +81,7 @@ public class OrderServiceImpl extends AbstractService<OrderEntity, OrderResponse
         OrderEntity order = findOrderOrThrow(orderId);
         
         if (order.getStatus() == OrderStatusEnum.CANCELADO) {
-            throw new IllegalStateException("Order is already cancelled");
+            throw new OrderAlreadyCancelledException(orderId);
         }
         
         if (order.getStatus() == OrderStatusEnum.APROVADO) {
@@ -168,14 +174,14 @@ public class OrderServiceImpl extends AbstractService<OrderEntity, OrderResponse
     
     private OrderEntity findOrderOrThrow(UUID id) {
         return orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new OrderNotFoundException(id));
     }
     
     private OrderStatusEnum parseStatus(String statusStr) {
         try {
             return OrderStatusEnum.valueOf(statusStr.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Invalid order status: " + statusStr);
+            throw new InvalidOrderStatusException(statusStr);
         }
     }
     

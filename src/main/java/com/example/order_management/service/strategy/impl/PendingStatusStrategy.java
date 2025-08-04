@@ -3,14 +3,13 @@ package com.example.order_management.service.strategy.impl;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
-import com.example.order_management.repository.PartnerRepository;
+import com.example.order_management.exception.InsufficientCreditException;
+import com.example.order_management.exception.InvalidOrderStatusTransitionException;
 import com.example.order_management.service.strategy.OrderStatusStrategy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.Map;
 
 @Component
 public class PendingStatusStrategy implements OrderStatusStrategy {
@@ -21,7 +20,7 @@ public class PendingStatusStrategy implements OrderStatusStrategy {
         if (targetStatus == OrderStatusEnum.APROVADO) {
             
             if (partner.getCreditAvailable().compareTo(total) < 0) {
-                throw new IllegalStateException("Insufficient credit to approve the order.");
+                throw new InsufficientCreditException(partner.getId());
             }
             
             BigDecimal updatedCredit = partner.getCreditAvailable().subtract(total);
@@ -34,7 +33,7 @@ public class PendingStatusStrategy implements OrderStatusStrategy {
             
             return new SimpleEntry<>(OrderStatusEnum.CANCELADO, partner);
         } else {
-            throw new IllegalStateException("Invalid transition from PENDING to " + targetStatus);
+            throw new InvalidOrderStatusTransitionException(order.getStatus(), targetStatus);
         }
     }
 }
