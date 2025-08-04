@@ -1,0 +1,5 @@
+FROM justb4/jmeter:latest
+WORKDIR /tests
+COPY tests/order-management-test-plan.jmx /tests/order-management-test-plan.jmx
+COPY tests/partners.csv /tests/partners.csv
+ENTRYPOINT ["jmeter", "-n", "-t", "/tests/order-management-test-plan.jmx", "-JBASE_URL=http://order-management:8080", "-l", "results.jtl"]

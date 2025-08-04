@@ -5,6 +5,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -19,6 +21,8 @@ import java.util.UUID;
 @Entity
 public class OrderEntity {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    
     private UUID id;
     
     @ManyToOne
@@ -42,45 +46,49 @@ public class OrderEntity {
     }
     
     public static class Builder {
-        private final OrderEntity order = new OrderEntity();
+        private final OrderEntity instance;
+        
+        public Builder() {
+            instance = new OrderEntity();
+        }
         
         public Builder id(UUID id) {
-            order.id = id;
+            instance.id = id;
             return this;
         }
         
         public Builder partner(PartnerEntity partner) {
-            order.partner = partner;
+            instance.partner = partner;
             return this;
         }
         
         public Builder items(List<ItemEntity> items) {
-            order.items = items;
+            instance.items = items;
             return this;
         }
         
         public Builder totalValue(BigDecimal totalValue) {
-            order.totalValue = totalValue;
+            instance.totalValue = totalValue;
             return this;
         }
         
         public Builder status(OrderStatusEnum status) {
-            order.status = status;
+            instance.status = status;
             return this;
         }
         
         public Builder createdAt(LocalDateTime createdAt) {
-            order.createdAt = createdAt;
+            instance.createdAt = createdAt;
             return this;
         }
         
         public Builder updatedAt(LocalDateTime updatedAt) {
-            order.updatedAt = updatedAt;
+            instance.updatedAt = updatedAt;
             return this;
         }
         
         public OrderEntity build() {
-            return order;
+            return instance;
         }
     }
     

@@ -8,27 +8,31 @@ import com.example.order_management.service.strategy.OrderStatusStrategy;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Map;
 
 @Component
 public class PendingStatusStrategy implements OrderStatusStrategy {
-    
-    private PartnerRepository partnerRepository;
-    
     @Override
-    public OrderStatusEnum handleTransition(OrderEntity order, OrderStatusEnum targetStatus) {
+    public SimpleEntry<OrderStatusEnum, PartnerEntity> handleTransition(OrderEntity order, OrderStatusEnum targetStatus) {
+        BigDecimal total = order.getTotalValue();
+        PartnerEntity partner = order.getPartner();
         if (targetStatus == OrderStatusEnum.APROVADO) {
-            BigDecimal total = order.getTotalValue();
-            PartnerEntity partner = order.getPartner();
             
             if (partner.getCreditAvailable().compareTo(total) < 0) {
                 throw new IllegalStateException("Insufficient credit to approve the order.");
             }
             
-            partner.setCreditAvailable(partner.getCreditAvailable().subtract(total));
-            partnerRepository.save(partner);
-            return OrderStatusEnum.APROVADO;
+            BigDecimal updatedCredit = partner.getCreditAvailable().subtract(total);
+            partner.setCreditAvailable(updatedCredit);
+            
+            return new SimpleEntry<>(OrderStatusEnum.APROVADO, partner);
         } else if (targetStatus == OrderStatusEnum.CANCELADO) {
-            return OrderStatusEnum.CANCELADO;
+            BigDecimal updatedCredit = partner.getCreditAvailable().add(total);
+            partner.setCreditAvailable(updatedCredit);
+            
+            return new SimpleEntry<>(OrderStatusEnum.CANCELADO, partner);
         } else {
             throw new IllegalStateException("Invalid transition from PENDING to " + targetStatus);
         }
