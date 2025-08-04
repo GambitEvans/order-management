@@ -51,7 +51,7 @@ Após a aplicação estar rodando via Docker Compose, é possível executar um t
 1. Certifique-se de que a aplicação está acessível em:  
    [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 
-2. Execute o comando abaixo a partir da raiz do projeto:
+2. Execute o comando abaixo a partir da raiz do projeto se estiver usando windows:
     ```bash
     docker run --rm ^
       --network=order-management_order-net ^
@@ -61,6 +61,18 @@ Após a aplicação estar rodando via Docker Compose, é possível executar um t
       -JBASE_URL=http://order-management:8080 ^
       -l /tests/results.jtl ^
       -j /tests/jmeter.log
+   
+3. Ou execute o seguinte comando se estiver usando linux/mac:
+    ```bash
+    docker run --rm \
+    --network=order-management_order-net \
+    -v "$PWD/tests:/tests" \
+    justb4/jmeter:latest \
+    -n -t /tests/order-management-test-plan.jmx \
+    -JBASE_URL=http://order-management:8080 \
+    -l /tests/results.jtl \
+    -j /tests/jmeter.log
+
    
 Em resumo esse comando usa o plano de tests q tá na pasta tests (order-management-test-plan.jmx), executa, e gera uns logs no arquivo jmeter.log e o resultado dos testes apareceram num arquivo result.jtl.
 
@@ -73,10 +85,18 @@ Em resumo esse comando usa o plano de tests q tá na pasta tests (order-manageme
 
 > Requisitos: JDK 21 e Maven (ou use o wrapper incluso)
 
-1. Para executar os testes , utilize o seguinte comando na raiz do projeto:
+1. Para executar os testes, certifique que possui o java 17+ instalado:
+2. utilize o seguinte comando na raiz do projeto se estiver usando linux/mac ou até mesmo git bash no windows:
 
     ```bash
     ./gradlew test
+   
+3. Ou utilize esse comando para windows:
+   ```bash
+   .\gradlew.bat test
+4. Outra alternativa é usar a aba gradle do intelij para rodar os testes unitários:
+![img.png](img.png)
+![img_1.png](img_1.png)
 > ⚠️ **Observação:**
-> Também por limitação de tempo método criado para exemplificar um cenário onde seria viável usar cache(OrderService::getLastDailyReport) não foi 
+> Também por limitação de tempo método criado para exemplificar um cenário onde seria viável usar cache (OrderService::getLastDailyReport) não foi 
 > testado pois estava dando um conflito entre a condição passada por SpEL no repository OrderRepository e as configurações de teste.
