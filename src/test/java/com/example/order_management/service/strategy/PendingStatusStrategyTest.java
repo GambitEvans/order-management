@@ -3,6 +3,8 @@ package com.example.order_management.service.strategy;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
+import com.example.order_management.exception.InsufficientCreditException;
+import com.example.order_management.exception.InvalidOrderStatusTransitionException;
 import com.example.order_management.service.strategy.impl.PendingStatusStrategy;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +41,7 @@ public class PendingStatusStrategyTest {
     @Test
     void shouldThrowException_whenApprovingWithInsufficientCredit() {
         PartnerEntity partner = PartnerEntity.builder()
+                .id(UUID.randomUUID())
                 .creditAvailable(BigDecimal.valueOf(100))
                 .build();
         
@@ -48,11 +51,11 @@ public class PendingStatusStrategyTest {
                 .status(OrderStatusEnum.PENDENTE)
                 .build();
         
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+        Exception ex = assertThrows(InsufficientCreditException.class, () ->
                 strategy.handleTransition(order, OrderStatusEnum.APROVADO)
         );
         
-        assertEquals("Insufficient credit to approve the order.", ex.getMessage());
+        assertEquals("Parceiro com o " + partner.getId() + " não tem crédito suficiente", ex.getMessage());
     }
     
     @Test
@@ -85,10 +88,10 @@ public class PendingStatusStrategyTest {
                 .status(OrderStatusEnum.PENDENTE)
                 .build();
         
-        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+        Exception ex = assertThrows(InvalidOrderStatusTransitionException.class, () ->
                 strategy.handleTransition(order, OrderStatusEnum.ENTREGUE)
         );
         
-        assertEquals("Invalid transition from PENDING to ENTREGUE", ex.getMessage());
+        assertEquals("Tramsição inválida do status " + order.getStatus() + " para " + OrderStatusEnum.ENTREGUE, ex.getMessage());
     }
 }

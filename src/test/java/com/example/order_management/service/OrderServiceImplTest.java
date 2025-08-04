@@ -8,6 +8,9 @@ import com.example.order_management.dto.OrderResponseDTO;
 import com.example.order_management.entity.OrderEntity;
 import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
+import com.example.order_management.exception.InsufficientCreditException;
+import com.example.order_management.exception.InvalidOrderStatusException;
+import com.example.order_management.exception.OrderAlreadyCancelledException;
 import com.example.order_management.mapper.OrderMapper;
 import com.example.order_management.repository.OrderRepository;
 import com.example.order_management.repository.PartnerRepository;
@@ -55,7 +58,7 @@ class OrderServiceImplTest extends BaseTest {
     private UUID partnerId;
     
     private final List<ItemDTO> items = List.of(
-            new ItemDTO("Product A", 2, BigDecimal.valueOf(100)) // total = 200
+            new ItemDTO("Product A", 2, BigDecimal.valueOf(100))
     );
     
     @BeforeEach
@@ -94,8 +97,8 @@ class OrderServiceImplTest extends BaseTest {
         
         OrderRequestDTO dto = new OrderRequestDTO(partnerId, items);
         
-        Exception ex = assertThrows(IllegalStateException.class, () -> orderService.createOrder(dto));
-        assertEquals("Insufficient credit for partner", ex.getMessage());
+        Exception ex = assertThrows(InsufficientCreditException.class, () -> orderService.createOrder(dto));
+        assertEquals("Parceiro com o " + partnerId + " não tem crédito suficiente", ex.getMessage());
     }
     
     @Test
@@ -132,8 +135,8 @@ class OrderServiceImplTest extends BaseTest {
                 .totalValue(BigDecimal.valueOf(100))
                 .build());
         
-        Exception ex = assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(order.getId()));
-        assertEquals("Order is already cancelled", ex.getMessage());
+        Exception ex = assertThrows(OrderAlreadyCancelledException.class, () -> orderService.cancelOrder(order.getId()));
+        assertEquals("Pedido com o id " + order.getId() + " já está cancelado", ex.getMessage());
     }
     
     @Test
@@ -197,23 +200,9 @@ class OrderServiceImplTest extends BaseTest {
                 .build());
         
         String statusStr = "PROCESSADO";
-        Exception ex = assertThrows(IllegalArgumentException.class,
+        Exception ex = assertThrows(InvalidOrderStatusException.class,
                 () -> orderService.updateStatus(order.getId(), statusStr));
-        assertEquals("Invalid order status: " + statusStr, ex.getMessage());
+        assertEquals("Status do pedido inválido: " + statusStr, ex.getMessage());
     }
     
-    private OrderEntity buildFakeOrder() {
-        return OrderEntity.builder()
-                .id(UUID.randomUUID())
-                .status(OrderStatusEnum.ENTREGUE)
-                .totalValue(BigDecimal.valueOf(200))
-                .createdAt(LocalDateTime.now().minusDays(1))
-                .updatedAt(LocalDateTime.now())
-                .partner(PartnerEntity.builder()
-                        .id(UUID.randomUUID())
-                        .name("Fake Partner")
-                        .creditAvailable(BigDecimal.valueOf(1000))
-                        .build())
-                .build();
-    }
 }
