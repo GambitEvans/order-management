@@ -49,7 +49,7 @@ Após a aplicação estar rodando via Docker Compose, é possível executar um t
 ### 📌 Passos para executar:
 
 1. Certifique-se de que a aplicação está acessível em:  
-   [http://localhost:8080](http://localhost:8080)
+   [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
 
 2. Execute o comando abaixo a partir da raiz do projeto:
     ```bash
