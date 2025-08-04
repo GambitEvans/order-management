@@ -17,6 +17,12 @@ spring:
       hibernate:
         format_sql: true
 
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info
+
   cache:
     type: redis
   data:
