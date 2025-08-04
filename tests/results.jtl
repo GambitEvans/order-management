@@ -1,3 +1,0 @@
-timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
-1753914018101,438,GET Orders,200,,Simple Thread Group 1-1,text,true,,375,127,1,1,http://order-management:8080/orders,433,0,28
-1753916229210,524,GET Orders,200,,Simple Thread Group 1-1,text,true,,375,127,1,1,http://order-management:8080/orders,517,0,28
