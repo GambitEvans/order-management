@@ -4,16 +4,18 @@ import com.example.order_management.dto.OrderParamsDTO;
 import com.example.order_management.dto.OrderRequestDTO;
 import com.example.order_management.dto.OrderResponseDTO;
 import com.example.order_management.dto.UpdateOrderStatusDTO;
-import com.example.order_management.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,54 +24,78 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 
 import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Pedidos")
-@RestController
 @RequestMapping("/orders")
-public class OrderController extends AbstractController{
+public interface OrderController {
     
-    private final OrderService orderService;
-    
-    public OrderController(final OrderService orderService) {
-        this.orderService = orderService;
-    }
-    
-    @Operation(summary = "Criar pedidos")
+    @Operation(
+            summary = "Criar pedidos",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pedido criado com sucesso",
+                            content = @Content(mediaType = "application/json", schema = @Schema(implementation = OrderResponseDTO.class)))
+            }
+    )
     @PostMapping
-    public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody @Validated OrderRequestDTO dto) {
-        return ok(orderService.createOrder(dto));
-    }
+    ResponseEntity<OrderResponseDTO> createOrder(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Dados do pedido a ser criado",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = OrderRequestDTO.class))
+            )
+            @Valid @RequestBody OrderRequestDTO dto
+    );
     
+    @Operation(
+            summary = "Listar pedidos com filtros e paginação",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista paginada de pedidos")
+            }
+    )
     @GetMapping
-    public ResponseEntity<Page<OrderResponseDTO>> listOrders(
-            @ModelAttribute OrderParamsDTO orderParams,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        return ok(orderService.findByFilter(orderParams, pageable));
-    }
+    ResponseEntity<Page<OrderResponseDTO>> listOrders(
+            @ParameterObject @ModelAttribute OrderParamsDTO orderParams,
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt") Pageable pageable
+    );
     
+    @Operation(
+            summary = "Obter último relatório diário",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de pedidos no último relatório diário")
+            }
+    )
     @GetMapping("/report")
-    public ResponseEntity<List<OrderResponseDTO>> getLastDailyReport() {
-        return ok(orderService.getLastDailyReport());
-    }
+    ResponseEntity<List<OrderResponseDTO>> getLastDailyReport();
     
+    @Operation(
+            summary = "Atualizar status do pedido",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Pedido atualizado com sucesso")
+            }
+    )
     @PatchMapping("/{id}/status")
-    public ResponseEntity<OrderResponseDTO> updateStatus(
-            @PathVariable UUID id,
-            @RequestBody @Validated UpdateOrderStatusDTO dto
-    ) {
-        return ok(orderService.updateStatus(id, dto.status()));
-    }
+    ResponseEntity<OrderResponseDTO> updateStatus(
+            @Parameter(description = "ID do pedido", required = true) @PathVariable UUID id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Novo status do pedido",
+                    required = true,
+                    content = @Content(schema = @Schema(implementation = UpdateOrderStatusDTO.class))
+            )
+            @Valid @RequestBody UpdateOrderStatusDTO dto
+    );
     
+    @Operation(
+            summary = "Cancelar pedido",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Pedido cancelado com sucesso")
+            }
+    )
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelOrder(@PathVariable UUID id) {
-        orderService.cancelOrder(id);
-        return noContent();
-    }
-    
+    ResponseEntity<Void> cancelOrder(
+            @Parameter(description = "ID do pedido", required = true) @PathVariable UUID id
+    );
 }
