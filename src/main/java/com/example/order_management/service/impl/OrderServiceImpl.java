@@ -24,7 +24,7 @@ import com.example.order_management.service.AbstractService;
 import com.example.order_management.service.OrderService;
 import com.example.order_management.service.strategy.OrderStatusStrategy;
 import com.example.order_management.service.strategy.OrderStatusStrategyEnum;
-import com.example.order_management.service.strategy.impl.ApprovedStatusStrategy;
+import com.example.order_management.service.strategy.ApprovedStatusStrategy;
 import com.example.order_management.util.DateUtil;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

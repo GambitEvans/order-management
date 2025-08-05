@@ -5,7 +5,6 @@ import com.example.order_management.entity.PartnerEntity;
 import com.example.order_management.entity.enums.OrderStatusEnum;
 import com.example.order_management.exception.InsufficientCreditException;
 import com.example.order_management.exception.InvalidOrderStatusTransitionException;
-import com.example.order_management.service.strategy.impl.PendingStatusStrategy;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

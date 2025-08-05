@@ -6,6 +6,6 @@ import com.example.order_management.entity.enums.OrderStatusEnum;
 
 import java.util.AbstractMap.SimpleEntry;
 
-public interface OrderStatusStrategy {
+public sealed interface OrderStatusStrategy permits ApprovedStatusStrategy, PendingStatusStrategy {
     SimpleEntry<OrderStatusEnum, PartnerEntity> handleTransition(OrderEntity order, OrderStatusEnum targetStatus);
 }
