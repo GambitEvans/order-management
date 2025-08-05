@@ -22,6 +22,7 @@ Permite cadastrar, consultar, atualizar status e cancelar pedidos, além de inte
 - **Spring Boot** (Web, Data JPA, Validation, Cache)
 - **PostgreSQL** (armazenamento dos pedidos)
 - **RabbitMQ** (mensageria para notificações)
+- **Redis** (cache)
 - **Swagger/OpenAPI** (documentação da API)
 - **Docker & Docker Compose** (subir todo o ambiente com um comando)
 
